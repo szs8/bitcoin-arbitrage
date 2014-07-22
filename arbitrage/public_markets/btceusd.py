@@ -1,8 +1,5 @@
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
-from .market import Market
+import requests
+from market import Market
 
 
 class BtceUSD(Market):
@@ -12,12 +9,8 @@ class BtceUSD(Market):
 
     def update_depth(self):
         url = 'https://btc-e.com/api/2/btc_usd/depth'
-        req = urllib.request.Request(url, None, headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "*/*",
-            "User-Agent": "curl/7.24.0 (x86_64-apple-darwin12.0)"})
-        res = urllib.request.urlopen(req)
-        depth = json.loads(res.read().decode('utf8'))
+        resp = requests.get(url)
+        depth = resp.json()
         self.depth = self.format_depth(depth)
 
     def sort_and_format(self, l, reverse=False):

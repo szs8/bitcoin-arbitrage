@@ -1,7 +1,9 @@
 import abc
 
 
-class Observer(object, metaclass=abc.ABCMeta):
+class Observer(object):
+    __metaclass__ = abc.ABCMeta
+
     def begin_opportunity_finder(self, depths):
         pass
 
@@ -10,5 +12,6 @@ class Observer(object, metaclass=abc.ABCMeta):
 
     ## abstract
     @abc.abstractmethod
-    def opportunity(self, profit, volume, buyprice, kask, sellprice, kbid, perc, weighted_buyprice, weighted_sellprice):
+    def opportunity(self, profit, volume, buyprice, kask, sellprice,
+                    kbid, perc, weighted_buyprice, weighted_sellprice):
         pass

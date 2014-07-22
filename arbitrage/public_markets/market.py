@@ -1,12 +1,10 @@
 import time
-import urllib.request
-import urllib.error
-import urllib.parse
 import config
 import logging
 import sys
 from fiatconverter import FiatConverter
 from utils import log_exception
+
 
 class Market(object):
     def __init__(self, currency):
@@ -40,7 +38,7 @@ class Market(object):
             self.update_depth()
             self.convert_to_usd()
             self.depth_updated = time.time()
-        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        except ValueError as e:
             logging.error("HTTPError, can't update market: %s" % self.name)
             log_exception(logging.DEBUG)
         except Exception as e:

@@ -1,8 +1,5 @@
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
-from .market import Market
+import requests
+from market import Market
 
 
 class Bitcoin24EUR(Market):
@@ -11,9 +8,8 @@ class Bitcoin24EUR(Market):
         self.update_rate = 20
 
     def update_depth(self):
-        res = urllib.request.urlopen(
-            'https://bitcoin-24.com/api/orderbook.json')
-        depth = json.loads(res.read().decode('utf8'))
+        resp = requests.get('https://bitcoin-24.com/api/orderbook.json')
+        depth = resp.json()
         self.depth = self.format_depth(depth)
 
     def sort_and_format(self, l, reverse=False):

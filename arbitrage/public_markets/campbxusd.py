@@ -1,8 +1,5 @@
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
-from .market import Market
+import requests
+from market import Market
 
 
 class CampBXUSD(Market):
@@ -11,10 +8,8 @@ class CampBXUSD(Market):
         self.update_rate = 60
 
     def update_depth(self):
-        req = urllib.request.Request('http://campbx.com/api/xdepth.php')
-        req.add_header('User-Agent', 'Mozilla/5.0')
-        res = urllib.request.urlopen(req)
-        depth = json.loads(res.read().decode('utf8'))
+        resp = requests.get('http://campbx.com/api/xdepth.php')
+        depth = resp.json()
         self.depth = self.format_depth(depth)
 
     def sort_and_format(self, l, reverse=False):

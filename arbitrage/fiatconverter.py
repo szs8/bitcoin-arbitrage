@@ -1,6 +1,7 @@
 # Copyright (C) 2013, Maxime Biais <maxime@biais.org>
 
-import urllib.request
+#import urllib.request
+import requests
 import sys
 import json
 import logging
@@ -27,8 +28,8 @@ class FiatConverter:
 
     def get_currency_pair(self, code_from, code_to):
         url = self.rate_exchange_url % (code_from, code_to)
-        res = urllib.request.urlopen(url)
-        data = json.loads(res.read().decode('utf8'))
+        resp = requests.get(url)
+        data = resp.json()
         rate = 0
         if "rate" in data:
             rate = float(data["rate"]) * (1.0 - self.bank_fee)
@@ -38,8 +39,8 @@ class FiatConverter:
 
     def get_currency_pair_yahoo(self, code_from, code_to):
         url = self.rate_exchange_url_yahoo % (code_from, code_to)
-        res = urllib.request.urlopen(url)
-        data = res.read().decode('utf8').split(",")[1]
+        resp = requests.get(url)
+        data = resp.text.split(',')[1]
         rate = float(data) * (1.0 - self.bank_fee)
         return rate
 
@@ -49,7 +50,7 @@ class FiatConverter:
         code_from = "USD"
         try:
             rate = self.get_currency_pair(code_from, code_to)
-        except urllib.error.HTTPError:
+        except ValueError:
             rate = self.get_currency_pair_yahoo(code_from, code_to)
         if rate:
             self.rates[code_to] = rate

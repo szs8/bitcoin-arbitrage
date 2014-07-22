@@ -1,8 +1,5 @@
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
-from .market import Market
+import requests
+from market import Market
 
 
 class PaymiumUSD(Market):
@@ -11,9 +8,8 @@ class PaymiumUSD(Market):
         self.update_rate = 60
 
     def update_depth(self):
-        res = urllib.request.urlopen(
-            'https://paymium.com/api/v1/depth?currency=USD')
-        depth = json.loads(res.read().decode('utf8'))
+        resp = requests.get('https://paymium.com/api/v1/depth?currency=USD')
+        depth = resp.json()
         self.depth = self.format_depth(depth)
 
     def sort_and_format(self, l, reverse=False):

@@ -2,12 +2,13 @@
 
 import public_markets
 import observers
-import config
+import config as config
 import time
 import logging
 import json
-from concurrent.futures import ThreadPoolExecutor, wait
+from futures import ThreadPoolExecutor, wait
 
+import importlib
 
 class Arbitrer(object):
     def __init__(self):
@@ -22,11 +23,13 @@ class Arbitrer(object):
         self.market_names = markets
         for market_name in markets:
             try:
-                exec('import public_markets.' + market_name.lower())
-                market = eval('public_markets.' + market_name.lower() + '.' +
+#                importlib.import_module('public_markets.' + market_name.lower())
+                exec('from public_markets import ' + market_name.lower())
+                market = eval( 'public_markets.' + market_name.lower() + '.' +
                               market_name + '()')
                 self.markets.append(market)
             except (ImportError, AttributeError) as e:
+                print e
                 print("%s market name is invalid: Ignored (you should check your config file)" % (market_name))
 
     def init_observers(self, _observers):

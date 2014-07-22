@@ -1,3 +1,10 @@
+This is port of bitcoin-arbitrage to python 2.7.
+
+In addition to the requirements below, it needs futures, requests. Please install from pip.
+
+
+
+
 # bitcoin-arbitrage - opportunity detector and automated trading
 
 It gets order books from supported exchanges and calculate arbitrage

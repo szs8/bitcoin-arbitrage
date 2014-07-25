@@ -1,6 +1,3 @@
-# import urllib.request
-# import urllib.error
-# import urllib.parse
 import json
 import sys
 import requests
@@ -14,10 +11,6 @@ class BitstampUSD(Market):
 
     def update_depth(self):
         url = 'https://www.bitstamp.net/api/order_book/'
-        # req = urllib.request.Request(url, None, headers={
-        #     "Content-Type": "application/x-www-form-urlencoded",
-        #     "Accept": "*/*",
-        #     "User-Agent": "curl/7.24.0 (x86_64-apple-darwin12.0)"})
         resp = requests.get(url)
         depth = resp.json()
         self.depth = self.format_depth(depth)

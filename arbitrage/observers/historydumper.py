@@ -1,4 +1,4 @@
-from .observer import Observer
+from observer import Observer
 import json
 import time
 import os

@@ -26,6 +26,87 @@ class Market(object):
                 {'price': 0, 'amount': 0}]}
         return self.depth
 
+    def bid(self, level=0):
+        return self.get_depth()['bids'][level]['price']
+
+    def ask(self, level=0):
+        return self.get_depth()['asks'][level]['price']
+
+    def bsize(self, level=0):
+        return self.get_depth()['bids'][level]['amount']
+
+    def asize(self, level=0):
+        return self.get_depth()['asks'][level]['amount']
+
+    def num_bid_levels(self):
+        return len(self.get_depth()['bids'])
+
+    def num_ask_levels(self):
+        return len(self.get_depth()['asks'])
+
+    def iter_bids(self):
+        for i in self.get_depth()['bids']:
+            yield i['price']
+
+    def iter_asks(self):
+        for i in self.get_depth()['asks']:
+            yield i['price']
+
+    def cum_bsize(self, level):
+        size = 0
+        for i in self.get_depth()['bids']:
+            size += i['amount']
+            if i >= level:
+                break
+        return size
+
+    def cum_asize(self, level):
+        size = 0
+        for i in self.get_depth()['asks']:
+            size += i['amount']
+            if i >= level:
+                break
+        return size
+
+    def wavg_bid(self, size):
+        n, d = 0.0, 0.0
+        bids = self.get_depth()['bids']
+        for i in bids:
+            price, amount = i['price'], i['amount']
+            amount_to_take = min(amount, size)
+            n += price * amount_to_take
+            d += amount_to_take
+            if d >= size:
+                break
+
+        if d > 0:
+            return n / d, d
+        else:
+            return 0
+
+    def wavg_ask(self, size):
+        n, d = 0.0, 0.0
+        asks = self.get_depth()['asks']
+        for i in asks:
+            price, amount = i['price'], i['amount']
+            amount_to_take = min(amount, size)
+            n += price * amount_to_take
+            d += amount_to_take
+            if d >= size:
+                break
+
+        if d > 0:
+            return n / d, d
+        else:
+            return 0
+
+    def is_valid(self):
+        """
+        :return: True, if the market has valid data (bids, offers)
+        """
+        depth = self.get_depth()
+        return 'bids' in depth and len(depth['bids']) > 0 and 'asks' in depth and len(depth['asks']) > 0
+
     def convert_to_usd(self):
         if self.currency == "USD":
             return

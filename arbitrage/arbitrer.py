@@ -63,7 +63,7 @@ class Arbitrer(object):
         profit -= comm
         return profit, comm, sell_total, w_buyprice, w_sellprice
 
-    def get_max_depth(self, kask, kbid):
+    def get_max_depth(self, kask, kbid, max_depth_levels=5):
         """
 
         :param kask: Market name where we can supposed buy  (ask is lower than nbbo bid)
@@ -74,20 +74,49 @@ class Arbitrer(object):
         buy_market = self.updated_markets[kask]    # Buy at this market's ask
         sell_market = self.updated_markets[kbid]   # Sell at this market's bid
 
-        # Find all prices that we can buy at
+        # Find all prices that we can buy at (< ref_price)
         ref_price = sell_market.bid()
         for i, ask in enumerate(buy_market.iter_asks()):
-            if ask < ref_price:
-                continue
+            if ref_price < ask or i >= max_depth_levels:
+                break
 
-        # Find all the prices we can sell at
-        best_ask = buy_market.ask()
+        # Find all the prices we can sell at (> ref_price)
+        ref_price = buy_market.ask()
         for j, bid in enumerate(sell_market.iter_bids()):
-            if bid > best_ask:
-                continue
+            if ref_price > bid or j >= max_depth_levels:
+                break
+
         return i, j
 
+
     def arbitrage_depth_opportunity(self, kask, kbid):
+        """
+
+        :param kask: Market name to buy at
+        :param kbid: Market name to sell at
+        :return:
+        """
+        maxi, maxj = self.get_max_depth(kask, kbid)
+
+        buy_market = self.updated_markets[kask]  # Buy at this market's ask
+        sell_market = self.updated_markets[kbid]  # Sell at this market's bid
+
+        max_trade_size = min(buy_market.cum_asize(maxi), sell_market.cum_bsize(maxj),
+                             config.max_tx_volume)
+
+        w_buyprice, buy_total = buy_market.wavg_ask(max_trade_size)
+        w_sellprice, sell_total = sell_market.wavg_bid(max_trade_size)
+
+        profit = sell_total * w_sellprice - buy_total * w_buyprice
+        comm = (sell_total * w_sellprice + buy_total * w_buyprice) * (0.2 / 100)
+        profit -= comm
+
+        return profit, max_trade_size, \
+               self.updated_markets[kask].ask(), \
+               self.updated_markets[kbid].bid(), \
+               w_buyprice, w_sellprice
+
+    def arbitrage_depth_opportunity1(self, kask, kbid):
         """
 
         :param kask: Market name to buy at

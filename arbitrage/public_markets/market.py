@@ -54,17 +54,17 @@ class Market(object):
 
     def cum_bsize(self, level):
         size = 0
-        for i in self.get_depth()['bids']:
+        for idx, i in enumerate(self.get_depth()['bids']):
             size += i['amount']
-            if i >= level:
+            if idx >= level:
                 break
         return size
 
     def cum_asize(self, level):
         size = 0
-        for i in self.get_depth()['asks']:
+        for idx, i in enumerate(self.get_depth()['asks']):
             size += i['amount']
-            if i >= level:
+            if idx >= level:
                 break
         return size
 

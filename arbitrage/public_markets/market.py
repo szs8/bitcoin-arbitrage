@@ -71,9 +71,10 @@ class Market(object):
     def wavg_bid(self, size):
         n, d = 0.0, 0.0
         bids = self.get_depth()['bids']
+
         for i in bids:
             price, amount = i['price'], i['amount']
-            amount_to_take = min(amount, size)
+            amount_to_take = min(amount, size - d)
             n += price * amount_to_take
             d += amount_to_take
             if d >= size:
@@ -89,7 +90,7 @@ class Market(object):
         asks = self.get_depth()['asks']
         for i in asks:
             price, amount = i['price'], i['amount']
-            amount_to_take = min(amount, size)
+            amount_to_take = min(amount, size - d)
             n += price * amount_to_take
             d += amount_to_take
             if d >= size:

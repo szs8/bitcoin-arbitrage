@@ -111,36 +111,11 @@ class Arbitrer(object):
         comm = (sell_total * w_sellprice + buy_total * w_buyprice) * (0.2 / 100)
         profit -= comm
 
-        return profit, max_trade_size, \
+        return profit, comm, max_trade_size, \
                self.updated_markets[kask].ask(), \
                self.updated_markets[kbid].bid(), \
                w_buyprice, w_sellprice
 
-    def arbitrage_depth_opportunity1(self, kask, kbid):
-        """
-
-        :param kask: Market name to buy at
-        :param kbid: Market name to sell at
-        :return:
-        """
-        maxi, maxj = self.get_max_depth(kask, kbid)
-        best_profit = 0
-        best_i, best_j = (0, 0)
-        best_w_buyprice, best_w_sellprice = (0, 0)
-        best_volume = 0
-        for i in range(maxi + 1):
-            for j in range(maxj + 1):
-                profit, comm, volume, w_buyprice, w_sellprice = self.get_profit_for(i, j, kask, kbid)
-                if profit >= 0 and profit >= best_profit:
-                    best_profit = profit
-                    best_volume = volume
-                    best_i, best_j = (i, j)
-                    best_w_buyprice, best_w_sellprice = (w_buyprice, w_sellprice)
-
-        return best_profit, best_volume, \
-               self.updated_markets[kask].ask(best_i), \
-               self.updated_markets[kbid].bid(best_j), \
-               best_w_buyprice, best_w_sellprice
 
     def arbitrage_opportunity(self, kask, ask, kbid, bid):
         """
@@ -151,15 +126,18 @@ class Arbitrer(object):
         :param bid: sell price
         :return:
         """
-        profit, volume, buyprice, sellprice, weighted_buyprice,\
+        profit, comm, volume, buyprice, sellprice, weighted_buyprice,\
             weighted_sellprice = self.arbitrage_depth_opportunity(kask, kbid)
+
+        if profit < 0:
+            return
 
         if volume == 0 or buyprice == 0:
             return
         perc2 = (1 - (volume - (profit / buyprice)) / volume) * 100
         for observer in self.observers:
             observer.opportunity(
-                profit, volume, buyprice, kask, sellprice, kbid,
+                profit, comm, volume, buyprice, kask, sellprice, kbid,
                 perc2, weighted_buyprice, weighted_sellprice)
 
     def __get_market_depth(self, market, depths):

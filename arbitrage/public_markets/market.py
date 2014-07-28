@@ -113,7 +113,9 @@ class Market(object):
             return
         for direction in ("asks", "bids"):
             for order in self.depth[direction]:
-                order["price"] = self.fc.convert(order["price"], self.currency, "USD")
+                price_in_USD = self.fc.convert(order["price"], self.currency, "USD")
+                #print "Converting price %s -> %s at %s" % (order["price"], price_in_USD, self.name)
+                order["price"] = price_in_USD
 
     def ask_update_depth(self):
         try:

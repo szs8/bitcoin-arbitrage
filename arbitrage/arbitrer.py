@@ -141,7 +141,7 @@ class Arbitrer(object):
                 perc2, weighted_buyprice, weighted_sellprice)
 
     def __get_market_depth(self, market, depths):
-        _ = market.update_depth()
+        _ = market.get_depth()
         depths[market.name] = market
 
     def update_depths(self):
